@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CiExport } from "react-icons/ci";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
 import { generateTime } from "../../utils/generator";
-import Cookie from "../../utils/Cookie";
 import Note from "../../utils/Note";
+import ExportModal from "../organisms/ExportModal"
 
 function textAreaAdjust(event) {
   event.target.style.height = "1px";
@@ -17,13 +17,13 @@ export default function ShowNote() {
   let note = Note.show(noteID);
   let time = generateTime(note.updated_at);
 
+  let [exportModalOpened, setExportModalOpened] = useState(false);
   let [characters, setCharacters] = useState(note.content || "");
   let [saved, setSaved] = useState(true);
   let [changed, setChanged] = useState(false);
 
   let inputTitleRef = useRef();
   let inputContentRef = useRef();
-  // useEffect(() => {}, [changed]);
 
   const saveNote = (e) => {
     let note = Note.update({
@@ -57,7 +57,9 @@ export default function ShowNote() {
     setCharacters(element.value);
   };
   return (
-    <div>
+    <div className="relative w-screen h-screen bg-light dark:bg-dark">
+      { exportModalOpened && <ExportModal setExportModalOpened={setExportModalOpened} /> }
+      
       <div className="flex items-center justify-between p-2 text-lg">
         <Link to="/">
           <FaArrowLeft />
@@ -70,7 +72,7 @@ export default function ShowNote() {
             <FaSave />
           </button>
 
-          <button>
+          <button onClick={() => setExportModalOpened(!exportModalOpened)}>
             <CiExport />
           </button>
 
@@ -94,6 +96,7 @@ export default function ShowNote() {
               ref={inputTitleRef}
               placeholder="Title"
               onKeyUp={changeHandler}
+              onInput={(e) => this.value = e.target.value}
               value={note.title}
               className="text-dark dark:text-light bg-transparent outline-0 border-0"
             />

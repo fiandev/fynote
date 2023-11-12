@@ -1,12 +1,14 @@
 import Cookie from "./Cookie";
+import Crypto from "./Crypto";
 import { generateID } from "./generator";
 
 export default class Note {
   static all() {
-    return Cookie.select("notes", [], true);
+    return Cookie.select("notes", [{}], true);
   }
-  static create({ title, content }) {
-    let noteID = generateID();
+  static create({ noteID = generateID(), title, content }) {
+    try {
+      
     let newNoteTemplate = {
       noteID: noteID,
       title: title || "untitled",
@@ -24,30 +26,52 @@ export default class Note {
       Cookie.insert("notes", [newNoteTemplate], true);
     }
     return newNoteTemplate;
-  }
-
-  static update({ noteID, title, content }) {
-    if (!title && content) title = "untitled";
-
-    let notes = Note.all();
-
-    for (let i = 0; i < notes.length; i++) {
-      let note = notes[i];
-
-      if (note.noteID === noteID) {
-        notes[i] = {
-          noteID,
-          title: title,
-          content: content,
-          updated_at: new Date(),
-        };
-
-        Cookie.insert("notes", notes, true);
-        return note[i];
-      }
+    } catch (error) {
+      console.error("create method")
+      throw error
     }
-
-    return false;
+  }
+  
+  static insert (noteID, item) {
+    try {
+      if (Note.show(noteID)) {
+        Note.update(item);
+      } else {
+        Note.create(item)
+      }
+      
+    } catch(error) {
+      throw error
+    }
+  }
+  static update({ noteID, title, content }) {
+    try {
+      if (!title && content) title = "untitled";
+  
+      let notes = Note.all();
+  
+      for (let i = 0; i < notes.length; i++) {
+        let note = notes[i];
+  
+        if (note.noteID === noteID) {
+          notes[i] = {
+            noteID,
+            title: title,
+            content: content,
+            updated_at: new Date(),
+          };
+  
+          Cookie.insert("notes", notes, true);
+          return note[i];
+        }
+      }
+  
+      return false;
+      
+    } catch(err) {
+      console.error("update method")
+      throw err
+    }
   }
 
   static show(noteID) {
@@ -75,4 +99,25 @@ export default class Note {
 
     return result;
   }
+  
+  static select(noteID) {
+    let items = Note.all();
+
+    for (let item of items) {
+      if (item.noteID === noteID) return item
+    }
+    
+    throw new Error(`note with id ${ noteID} doesn't exists !`);
+  }
+  
+  static backup(noteID, key) {
+    let note = Note.select(noteID);
+    
+    for (let key in note) {
+      note[key] = note[key].trim();
+    }
+    return Crypto.encrypt(JSON.stringify(note), key)
+  }
+  
+  
 }

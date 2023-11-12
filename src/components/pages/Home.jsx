@@ -29,7 +29,6 @@ export default function Home() {
         </div>
         <ButtonCreateNote className="absolute w-12 h-12 bottom-4 right-4 rounded-full" />
       </div>
-
     </section>
   );
 }

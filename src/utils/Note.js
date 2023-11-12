@@ -8,51 +8,49 @@ export default class Note {
   }
   static create({ noteID = generateID(), title, content }) {
     try {
-      
-    let newNoteTemplate = {
-      noteID: noteID,
-      title: title || "untitled",
-      content: content,
-      updated_at: new Date(),
-      created_at: new Date(),
-    };
+      let newNoteTemplate = {
+        noteID: noteID,
+        title: title || "untitled",
+        content: content,
+        updated_at: new Date(),
+        created_at: new Date(),
+      };
 
-    if (Cookie.check("notes")) {
-      let items = Note.all();
-      items.push(newNoteTemplate);
+      if (Cookie.check("notes")) {
+        let items = Note.all();
+        items.push(newNoteTemplate);
 
-      Cookie.insert("notes", items, true);
-    } else {
-      Cookie.insert("notes", [newNoteTemplate], true);
-    }
-    return newNoteTemplate;
+        Cookie.insert("notes", items, true);
+      } else {
+        Cookie.insert("notes", [newNoteTemplate], true);
+      }
+      return newNoteTemplate;
     } catch (error) {
-      console.error("create method")
-      throw error
+      console.error("create method");
+      throw error;
     }
   }
-  
-  static insert (noteID, item) {
+
+  static insert(noteID, item) {
     try {
       if (Note.show(noteID)) {
         Note.update(item);
       } else {
-        Note.create(item)
+        Note.create(item);
       }
-      
-    } catch(error) {
-      throw error
+    } catch (error) {
+      throw error;
     }
   }
   static update({ noteID, title, content }) {
     try {
       if (!title && content) title = "untitled";
-  
+
       let notes = Note.all();
-  
+
       for (let i = 0; i < notes.length; i++) {
         let note = notes[i];
-  
+
         if (note.noteID === noteID) {
           notes[i] = {
             noteID,
@@ -60,17 +58,16 @@ export default class Note {
             content: content,
             updated_at: new Date(),
           };
-  
+
           Cookie.insert("notes", notes, true);
           return note[i];
         }
       }
-  
+
       return false;
-      
-    } catch(err) {
-      console.error("update method")
-      throw err
+    } catch (err) {
+      console.error("update method");
+      throw err;
     }
   }
 
@@ -99,25 +96,23 @@ export default class Note {
 
     return result;
   }
-  
+
   static select(noteID) {
     let items = Note.all();
 
     for (let item of items) {
-      if (item.noteID === noteID) return item
+      if (item.noteID === noteID) return item;
     }
-    
-    throw new Error(`note with id ${ noteID} doesn't exists !`);
+
+    throw new Error(`note with id ${noteID} doesn't exists !`);
   }
-  
+
   static backup(noteID, key) {
     let note = Note.select(noteID);
-    
+
     for (let key in note) {
       note[key] = note[key].trim();
     }
-    return Crypto.encrypt(JSON.stringify(note), key)
+    return Crypto.encrypt(JSON.stringify(note), key);
   }
-  
-  
 }

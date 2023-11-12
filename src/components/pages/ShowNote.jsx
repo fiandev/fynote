@@ -5,7 +5,7 @@ import { FaArrowLeft, FaSave } from "react-icons/fa";
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
 import { generateTime } from "../../utils/generator";
 import Note from "../../utils/Note";
-import ExportModal from "../organisms/ExportModal"
+import ExportModal from "../organisms/ExportModal";
 
 function textAreaAdjust(event) {
   event.target.style.height = "1px";
@@ -58,8 +58,10 @@ export default function ShowNote() {
   };
   return (
     <div className="relative w-screen h-screen bg-light dark:bg-dark">
-      { exportModalOpened && <ExportModal setExportModalOpened={setExportModalOpened} /> }
-      
+      {exportModalOpened && (
+        <ExportModal setExportModalOpened={setExportModalOpened} />
+      )}
+
       <div className="flex items-center justify-between p-2 text-lg">
         <Link to="/">
           <FaArrowLeft />
@@ -96,7 +98,7 @@ export default function ShowNote() {
               ref={inputTitleRef}
               placeholder="Title"
               onKeyUp={changeHandler}
-              onInput={(e) => this.value = e.target.value}
+              onInput={(e) => (this.value = e.target.value)}
               value={note.title}
               className="text-dark dark:text-light bg-transparent outline-0 border-0"
             />

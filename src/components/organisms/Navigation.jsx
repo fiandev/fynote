@@ -28,7 +28,7 @@ export default function Navigation({ handlerSearchBox }) {
         <div
           class={`${
             !navOpen ? "hidden lg:block" : "max-h-fit block"
-          } transition z-10 w-48 rounded-lg shadow-sm overflow-hidden shadow-primary absolute right-8 bottom-[-60%] w-full delay-500 uppercase lg:w-fit lg:relative bg-light dark:bg-dark lg:bg-transparent font-bold text-light`}
+          } transition z-10 w-2/3 rounded-lg shadow-sm overflow-hidden shadow-primary absolute right-8 bottom-[-60%] delay-500 uppercase lg:w-fit lg:relative bg-light dark:bg-dark lg:bg-transparent font-bold text-light`}
         >
           <ul className="flex flex-col items-center lg:flex-row gap-2">
             {NoteNavigator.routes.map((navigator) => {

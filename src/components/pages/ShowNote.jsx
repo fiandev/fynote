@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useState, useRef, useCallback } from "react";
+import { Link, redirect, useParams } from "react-router-dom";
 import { CiExport } from "react-icons/ci";
-import { FaArrowLeft, FaSave } from "react-icons/fa";
+import { FaArrowLeft, FaSave, FaTrash } from "react-icons/fa";
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
 import { generateTime } from "../../utils/generator";
+
 import Note from "../../utils/Note";
 import ExportModal from "../organisms/ExportModal";
 
@@ -15,18 +16,21 @@ function textAreaAdjust(event) {
 export default function ShowNote() {
   let { noteID } = useParams();
   let note = Note.show(noteID);
+  
+  if (!note) return window.location.href = "/404";
+
   let time = generateTime(note.updated_at);
 
   let [exportModalOpened, setExportModalOpened] = useState(false);
   let [characters, setCharacters] = useState(note.content || "");
   let [saved, setSaved] = useState(true);
-  let [changed, setChanged] = useState(false);
 
   let inputTitleRef = useRef();
   let inputContentRef = useRef();
 
-  const saveNote = (e) => {
-    let note = Note.update({
+
+  const saveNote = useCallback(() => {
+    Note.update({
       noteID: noteID,
       title: inputTitleRef.current.value,
       content: inputContentRef.current.value,
@@ -38,24 +42,21 @@ export default function ShowNote() {
       content: inputContentRef.current.value,
     });
     setSaved(true);
-    setChanged(false);
-  };
+  }, []);
 
-  const changeHandler = (e) => {
-    if (!saved) return;
-
-    console.log({
-      noteID: noteID,
-      title: inputTitleRef.current.value,
-      content: inputContentRef.current.value,
-    });
-    setChanged(true);
-  };
-
+  const deleteNote = useCallback(() => {
+    let confirmed = confirm(`are you sure, this note will be delete !`);
+    if (confirmed) {
+      Note.delete(noteID);
+      alert("delete note successfully !");
+      window.location.href = "/";
+    }
+  }, [])
   const handler = (e) => {
     let element = e.target;
     setCharacters(element.value);
   };
+
   return (
     <div className="relative w-screen h-screen bg-light dark:bg-dark">
       {exportModalOpened && (
@@ -67,11 +68,16 @@ export default function ShowNote() {
           <FaArrowLeft />
         </Link>
         <div className="flex items-center gap-2">
-          <button
-            className={`${saved && !changed ? "text-primary" : ""}`}
+        <button
+            className={`${saved ? "text-primary" : ""}`}
             onClick={saveNote}
           >
             <FaSave />
+          </button><button
+            className="text-rose-500"
+            onClick={deleteNote}
+          >
+            <FaTrash />
           </button>
 
           <button onClick={() => setExportModalOpened(!exportModalOpened)}>
@@ -94,11 +100,12 @@ export default function ShowNote() {
             className="text-xl text-sublight dark:text-subdark"
           >
             <input
-              onChange={changeHandler}
+              onChange={saveNote}
               ref={inputTitleRef}
               placeholder="Title"
-              onKeyUp={changeHandler}
-              onInput={(e) => (this.value = e.target.value)}
+              onInput={(e) => {
+                handler(e);
+              }}
               value={note.title}
               className="text-dark dark:text-light bg-transparent outline-0 border-0"
             />
@@ -117,8 +124,8 @@ export default function ShowNote() {
             onKeyUp={(e) => {
               textAreaAdjust(e);
               handler(e);
-              changeHandler(e);
             }}
+            onChange={saveNote}
             placeholder="start typing"
             className="border-0 outline-0 w-full h-full bg-transparent"
           >

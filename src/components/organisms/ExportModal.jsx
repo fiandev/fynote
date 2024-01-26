@@ -28,6 +28,7 @@ function stringToFile(filename, text) {
 export default function ExportModal({
   setExportModalOpened,
   children,
+  currentNoteID = null,
   items = [],
 }) {
   const [loading, setLoading] = useState();
@@ -36,7 +37,7 @@ export default function ExportModal({
   const [confirmPassword, setConfirmPassword] = useState();
   const [showConfirmPassword, setShowConfirmPassword] = useState();
 
-  const { noteID } = useParams();
+  const { noteID = currentNoteID } = useParams();
 
   const handler = (e, exit) => {
     e.preventDefault();
@@ -47,7 +48,7 @@ export default function ExportModal({
 
     if (showConfirmPassword) {
       console.log(password, confirmPassword);
-      if (password !== confirmPassword) {
+      if (password === confirmPassword) {
         setInValid(true);
         return;
       }
@@ -60,7 +61,7 @@ export default function ExportModal({
   const handlerSubmit = (e) => {
     e.preventDefault();
 
-    if (showConfirmPassword && password !== password) {
+    if (showConfirmPassword && password !== confirmPassword) {
       setInValid(true);
       return;
     }
@@ -87,16 +88,18 @@ export default function ExportModal({
               setPassword(e.target.value);
               handler(e);
             }}
-            label="password"
+            onChange={handler}
             name="password"
+            label="password"
             inValid={inValid}
-          />
+            />
           {showConfirmPassword && (
             <InputFloating
               onInput={(e) => {
                 setConfirmPassword(e.target.value);
                 handler(e);
               }}
+              onChange={handler}
               label="confirm password"
               name="confirm-password"
               inValid={inValid ? "confirm password doesn't match !" : null}

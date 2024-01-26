@@ -5,7 +5,7 @@ import { FaArrowLeft, FaSave } from "react-icons/fa";
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
 import { generateTime } from "../../utils/generator";
 import Crypto from "../../utils/Crypto";
-import Note from "../../utils/Note";
+import Note, { newNoteTemplate } from "../../utils/Note";
 import InputFloating from "../molecules/InputFloating";
 
 async function readText(event) {
@@ -22,6 +22,10 @@ export default function ImportNote({ children }) {
   const [inValid, setInValid] = useState();
   const navigate = useNavigate();
 
+  useEffect(() => {
+
+  }, [fileContent])
+
   const fileHandler = async (e) => {
     let filename = e.target.files[0].name;
     let content = await readText(e);
@@ -33,17 +37,25 @@ export default function ImportNote({ children }) {
   const submitHandler = (e) => {
     e.preventDefault();
     try {
-      let decrypted = Crypto.decrypt(fileContent, password);
+      let decrypted = Crypto.decrypt(fileContent, password)
+      let items = decrypted.split("|").map(v => v.trim());
+      let note = {};
 
-      let note = JSON.parse(decrypted);
-      console.log({ decrypted, note });
+      for (let i = 0; i <= items.length; i++) {
+        let item = items[i];
 
+        if (Object.keys(newNoteTemplate).includes(item)) {
+          note[item] = items[i + 1] || null;
+        }
+      }
+
+      // console.log(note);return;
       Note.insert(note.noteID, note);
 
       alert(`note ${note.noteID} successfully imported !`);
       return navigate("/");
     } catch (err) {
-      alert("failed import note, check your password");
+      // alert("failed import note, check your password");
       throw new Error(err);
     }
   };
@@ -70,7 +82,7 @@ export default function ImportNote({ children }) {
             fileDropped
               ? "capitalize font-semibold text-xl"
               : "font-light text-lg lowercase"
-          } flex items-center justify-center w-full h-32 border border-dashed border-2 cursor-pointer border-subdark dark:border-sublight`}
+          } flex items-center justify-center w-full h-32 border-dashed border-2 cursor-pointer border-subdark dark:border-sublight`}
         >
           <span>{fileDropped || "Drag & drop or attach file here"} </span>
           <input

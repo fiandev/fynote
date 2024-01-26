@@ -2,13 +2,20 @@ import Cookie from "./Cookie";
 import Crypto from "./Crypto";
 import { generateID } from "./generator";
 
+export let newNoteTemplate = {
+  noteID: "",
+  title: "untitled",
+  content: "",
+  updated_at: new Date(),
+  created_at: new Date(),
+};
 export default class Note {
   static all() {
     return Cookie.select("notes", [{}], true);
   }
   static create({ noteID = generateID(), title, content }) {
     try {
-      let newNoteTemplate = {
+      let newNote = {
         noteID: noteID,
         title: title || "untitled",
         content: content,
@@ -18,13 +25,13 @@ export default class Note {
 
       if (Cookie.check("notes")) {
         let items = Note.all();
-        items.push(newNoteTemplate);
+        items.push(newNote);
 
         Cookie.insert("notes", items, true);
       } else {
-        Cookie.insert("notes", [newNoteTemplate], true);
+        Cookie.insert("notes", [newNote], true);
       }
-      return newNoteTemplate;
+      return newNote;
     } catch (error) {
       console.error("create method");
       throw error;
@@ -109,10 +116,27 @@ export default class Note {
 
   static backup(noteID, key) {
     let note = Note.select(noteID);
+    let content = "";
 
     for (let key in note) {
-      note[key] = note[key].trim();
+      content += `| ${key} | ${note[key].trim()} `;
     }
-    return Crypto.encrypt(JSON.stringify(note), key);
+    console.log(content);
+    return Crypto.encrypt(content, key);
+  }
+
+  static delete(noteID) {
+    let notes = Note.all();
+
+    for (let i = 0; i < notes.length; i++) {
+      let note = notes[i];
+
+      if (note.noteID === noteID) {
+        notes.splice(i, 1);
+
+        Cookie.insert("notes", notes, true);
+        return note[i];
+      }
+    }
   }
 }

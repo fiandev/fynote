@@ -13,8 +13,10 @@ export default class Crypto {
   static decrypt(encrypted, key) {
     try {
       if (!key) return atob(encrypted);
-      return cryptoJS.AES.decrypt(encrypted, key);
+
+      return cryptoJS.AES.decrypt(encrypted, key).toString(cryptoJS.enc.Utf8);
     } catch (err) {
+      console.error({ encrypted });
       throw new Error(err);
     }
   }

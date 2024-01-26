@@ -5,10 +5,6 @@ const NoteNavigator = {
       path: "/setting",
     },
     {
-      name: "export",
-      path: "/export",
-    },
-    {
       name: "import",
       path: "/import",
     },

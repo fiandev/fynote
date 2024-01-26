@@ -8,6 +8,8 @@ import {
 
 import BaseTemplate from "./components/templates/BaseTemplate";
 
+const NotFound = lazy(() => import("./components/pages/NotFound"));
+
 const Home = lazy(() => import("./components/pages/Home"));
 const CreateNote = lazy(() => import("./components/pages/CreateNote"));
 const ShowNote = lazy(() => import("./components/pages/ShowNote"));
@@ -25,6 +27,7 @@ export default function Router() {
       <Routes>
         <Route element={<SuspenseLayout />}>
           <Route element={<BaseTemplate />}>
+            <Route path="*" element={<NotFound/>}/>
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/create" element={<CreateNote />} />

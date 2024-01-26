@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowLeft, FaSave } from "react-icons/fa";
 import { IoIosUndo, IoIosRedo } from "react-icons/io";
+import { CiExport } from "react-icons/ci";
+
 import { generateTime } from "../../utils/generator";
-import Cookie from "../../utils/Cookie";
+import ExportModal from "../organisms/ExportModal";
 import Note from "../../utils/Note";
 
 function textAreaAdjust(event) {
@@ -16,15 +18,18 @@ export default function CreateNote() {
   let [saved, setSaved] = useState(false);
   let [changed, setChanged] = useState(false);
   let [currentNoteID, setCurrentNoteID] = useState(null);
+  let [exportModalOpened, setExportModalOpened] = useState(false)
+
   let time = generateTime();
   let inputTitleRef = useRef();
   let inputContentRef = useRef();
 
   useEffect(() => {}, [changed]);
-  const saveNote = (e) => {
+
+  const saveNote = useCallback(() => {
     let note;
 
-    if (!changed) {
+    if (!currentNoteID) {
       note = Note.create({
         title: inputTitleRef.current.value,
         content: inputContentRef.current.value,
@@ -39,31 +44,37 @@ export default function CreateNote() {
     }
 
     setSaved(true);
-    setChanged(false);
-  };
+  }, [currentNoteID]);
 
-  const changeHandler = () => {
+  const changeHandler = useCallback(() => {
     if (!saved) return;
-
+    
     setChanged(true);
-  };
+  }, [saved]);
 
   const handler = (e) => {
     let element = e.target;
     setCharacters(element.value);
   };
+
   return (
     <div>
+      {exportModalOpened && (
+        <ExportModal setExportModalOpened={setExportModalOpened} currentNoteID={currentNoteID}/>
+      )}
       <div className="flex items-center justify-between p-2 text-lg">
         <Link to="/">
           <FaArrowLeft />
         </Link>
         <div className="flex items-center gap-2">
           <button
-            className={`${saved && !changed ? "text-primary" : ""}`}
+            className={`${saved && currentNoteID? "text-primary" : ""}`}
             onClick={saveNote}
           >
             <FaSave />
+          </button>
+          <button onClick={() => setExportModalOpened(!exportModalOpened)}>
+          <CiExport />
           </button>
           <button>
             <IoIosUndo />
@@ -84,6 +95,7 @@ export default function CreateNote() {
               ref={inputTitleRef}
               placeholder="Title"
               onKeyUp={changeHandler}
+              onChange={saveNote}
               className="text-dark dark:text-light bg-transparent outline-0 border-0"
             />
           </label>
@@ -103,6 +115,7 @@ export default function CreateNote() {
               handler(e);
               changeHandler(e);
             }}
+            onChange={saveNote}
             placeholder="start typing"
             className="border-0 outline-0 w-full h-full bg-transparent"
           ></textarea>

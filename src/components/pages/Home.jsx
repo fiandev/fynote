@@ -23,11 +23,11 @@ export default function Home() {
   return (
     <section className="h-full">
       <Navigation handlerSearchBox={handlerSearchBox} />
-      <div className="relative p-2 flex flex-col gap-4 bg-light dark:bg-dark">
-        <div className="max-h-screen min-h-24 h-fit max-h-[65vh] overflow-y-scroll grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+      <div className="h-full relative p-2 flex flex-col gap-4 bg-light dark:bg-dark">
+        <div className="max-h-screen overflow-y-scroll grid gap-2 md:grid-cols-2 lg:grid-cols-3">
           {notes ? notes.map((note) => <NoteList note={note} />) : null}
         </div>
-        <ButtonCreateNote className="absolute w-12 h-12 bottom-4 right-4 rounded-full" />
+        <ButtonCreateNote className="fixed w-12 h-12 bottom-4 right-4 rounded-full" />
       </div>
     </section>
   );

@@ -1,0 +1,6 @@
+{
+  "routes": [
+    {"handle": "fliesystem"},
+    {"src": "./.*", "dest": "./index.html"}
+  ]
+}
